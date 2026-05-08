@@ -119,4 +119,40 @@ class LedgerServiceTest {
 
         assertThat(service.getBalance()).isEqualByComparingTo(new BigDecimal("120.00"));
     }
+
+    @Test
+    void getBalance_fractionalDeposits_returnsExactSum() {
+        // 0.1 + 0.2 = 0.30000000000000004 in double arithmetic; BigDecimal must return exactly 0.3
+        service.record(new TransactionRequest(TransactionType.DEPOSIT, new BigDecimal("0.1")));
+        service.record(new TransactionRequest(TransactionType.DEPOSIT, new BigDecimal("0.2")));
+
+        assertThat(service.getBalance()).isEqualByComparingTo(new BigDecimal("0.3"));
+    }
+
+    @Test
+    void getBalance_mixedFractionalTransactions_returnsExactBalance() {
+        service.record(new TransactionRequest(TransactionType.DEPOSIT, new BigDecimal("10.55")));
+        service.record(new TransactionRequest(TransactionType.DEPOSIT, new BigDecimal("20.33")));
+        service.record(new TransactionRequest(TransactionType.WITHDRAWAL, new BigDecimal("5.11")));
+
+        // 10.55 + 20.33 - 5.11 = 25.77
+        assertThat(service.getBalance()).isEqualByComparingTo(new BigDecimal("25.77"));
+    }
+
+    @Test
+    void record_withdrawal_whenFractionalAmountEqualsBalance_succeeds() {
+        service.record(new TransactionRequest(TransactionType.DEPOSIT, new BigDecimal("10.55")));
+
+        service.record(new TransactionRequest(TransactionType.WITHDRAWAL, new BigDecimal("10.55")));
+
+        assertThat(service.getBalance()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    void record_withdrawal_whenFractionalAmountExceedsBalanceBySmallestUnit_throwsException() {
+        service.record(new TransactionRequest(TransactionType.DEPOSIT, new BigDecimal("10.55")));
+
+        assertThatThrownBy(() -> service.record(new TransactionRequest(TransactionType.WITHDRAWAL, new BigDecimal("10.56"))))
+                .isInstanceOf(InsufficientBalanceException.class);
+    }
 }
