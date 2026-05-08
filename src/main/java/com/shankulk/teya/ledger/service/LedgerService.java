@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -30,6 +31,10 @@ public class LedgerService {
         var transaction = new Transaction(UUID.randomUUID(), request.type(), request.amount(), Instant.now());
         store.add(transaction);
         return transaction;
+    }
+
+    public List<Transaction> getTransactions() {
+        return store.getAll();
     }
 
     public BigDecimal getBalance() {

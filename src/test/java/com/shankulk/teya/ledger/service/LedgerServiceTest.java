@@ -107,6 +107,37 @@ class LedgerServiceTest {
     }
 
     @Test
+    void getTransactions_withNoTransactions_returnsEmptyList() {
+        assertThat(service.getTransactions()).isEmpty();
+    }
+
+    @Test
+    void getTransactions_afterDepositAndWithdrawal_returnsAllInChronologicalOrder() {
+        service.record(new TransactionRequest(TransactionType.DEPOSIT, new BigDecimal("100.00")));
+        service.record(new TransactionRequest(TransactionType.WITHDRAWAL, new BigDecimal("40.00")));
+
+        var transactions = service.getTransactions();
+
+        assertThat(transactions).hasSize(2);
+        assertThat(transactions.get(0).type()).isEqualTo(TransactionType.DEPOSIT);
+        assertThat(transactions.get(0).amount()).isEqualByComparingTo(new BigDecimal("100.00"));
+        assertThat(transactions.get(1).type()).isEqualTo(TransactionType.WITHDRAWAL);
+        assertThat(transactions.get(1).amount()).isEqualByComparingTo(new BigDecimal("40.00"));
+    }
+
+    @Test
+    void getTransactions_eachEntryHasAllRequiredFields() {
+        service.record(new TransactionRequest(TransactionType.DEPOSIT, new BigDecimal("50.00")));
+
+        var transaction = service.getTransactions().get(0);
+
+        assertThat(transaction.id()).isNotNull();
+        assertThat(transaction.type()).isEqualTo(TransactionType.DEPOSIT);
+        assertThat(transaction.amount()).isEqualByComparingTo(new BigDecimal("50.00"));
+        assertThat(transaction.timestamp()).isNotNull();
+    }
+
+    @Test
     void getBalance_withNoTransactions_returnsZero() {
         assertThat(service.getBalance()).isEqualByComparingTo(BigDecimal.ZERO);
     }

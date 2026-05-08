@@ -2,8 +2,8 @@ package com.shankulk.teya.ledger.controller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -153,5 +153,16 @@ class TransactionControllerIntegrationTest {
         mockMvc.perform(get("/api/v1/balance"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.balance").exists());
+    }
+
+    @Test
+    void validationError_returns400WithErrorBody() throws Exception {
+        mockMvc.perform(post("/api/v1/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                { "type": "DEPOSIT", "amount": -1 }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Amount must be positive"));
     }
 }
