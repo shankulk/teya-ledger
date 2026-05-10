@@ -1,0 +1,91 @@
+openapi: 3.0.3
+info:
+  title: Ledger API
+  description: Simple ledger with deposit/withdrawal transactions
+  version: 1.0.0
+tags:
+  - name: Transaction
+    description: Transaction operations
+paths:
+  /api/v1/transactions:
+    post:
+      tags:
+        - Transaction
+      summary: Record a transaction
+      operationId: recordTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        '201':
+          description: Transaction recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+    get:
+      tags:
+        - Transaction
+      summary: Get all transactions
+      operationId: getTransactions
+      responses:
+        '200':
+          description: List of all transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+  /api/v1/balance:
+    get:
+      tags:
+        - Transaction
+      summary: Get current balance
+      operationId: getBalance
+      responses:
+        '200':
+          description: Current balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+components:
+  schemas:
+    TransactionType:
+      type: string
+      enum:
+        - DEPOSIT
+        - WITHDRAWAL
+    TransactionRequest:
+      type: object
+      required:
+        - type
+        - amount
+      properties:
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        amount:
+          type: number
+          x-field-extra-annotation: '@jakarta.validation.constraints.Positive(message = "Amount must be positive")'
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        amount:
+          type: number
+        timestamp:
+          type: string
+          format: date-time
+    BalanceResponse:
+      type: object
+      properties:
+        balance:
+          type: number

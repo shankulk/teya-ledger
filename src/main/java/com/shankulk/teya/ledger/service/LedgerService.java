@@ -24,11 +24,15 @@ public class LedgerService {
 
     public Transaction record(TransactionRequest request) {
         if (isWithdrawal(request)) {
-            if (request.amount().compareTo(getBalance()) > 0) {
+            if (request.getAmount().compareTo(getBalance()) > 0) {
                 throw new InsufficientBalanceException();
             }
         }
-        var transaction = new Transaction(UUID.randomUUID(), request.type(), request.amount(), Instant.now());
+        var transaction = new Transaction()
+                .id(UUID.randomUUID())
+                .type(request.getType())
+                .amount(request.getAmount())
+                .timestamp(Instant.now());
         store.add(transaction);
         return transaction;
     }
@@ -44,14 +48,14 @@ public class LedgerService {
     }
 
     private static Function<Transaction, BigDecimal> toDepositOrWithdrawal() {
-        return t -> isDeposit(t) ? t.amount() : t.amount().negate(); //WITHDRAWAL is negative
+        return t -> isDeposit(t) ? t.getAmount() : t.getAmount().negate();
     }
 
     private static boolean isWithdrawal(TransactionRequest request) {
-        return request.type() == TransactionType.WITHDRAWAL;
+        return request.getType() == TransactionType.WITHDRAWAL;
     }
 
     private static boolean isDeposit(Transaction t) {
-        return t.type() == TransactionType.DEPOSIT;
+        return t.getType() == TransactionType.DEPOSIT;
     }
 }

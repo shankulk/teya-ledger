@@ -29,10 +29,10 @@ class LedgerServiceTest {
 
         var result = service.record(request);
 
-        assertThat(result.id()).isNotNull();
-        assertThat(result.type()).isEqualTo(TransactionType.DEPOSIT);
-        assertThat(result.amount()).isEqualByComparingTo(new BigDecimal("100.00"));
-        assertThat(result.timestamp()).isNotNull();
+        assertThat(result.getId()).isNotNull();
+        assertThat(result.getType()).isEqualTo(TransactionType.DEPOSIT);
+        assertThat(result.getAmount()).isEqualByComparingTo(new BigDecimal("100.00"));
+        assertThat(result.getTimestamp()).isNotNull();
     }
 
     @Test
@@ -42,8 +42,8 @@ class LedgerServiceTest {
         service.record(request);
 
         assertThat(store.getAll()).hasSize(1);
-        assertThat(store.getAll().get(0).amount()).isEqualByComparingTo(new BigDecimal("50.00"));
-        assertThat(store.getAll().get(0).type()).isEqualTo(TransactionType.DEPOSIT);
+        assertThat(store.getAll().get(0).getAmount()).isEqualByComparingTo(new BigDecimal("50.00"));
+        assertThat(store.getAll().get(0).getType()).isEqualTo(TransactionType.DEPOSIT);
     }
 
     @Test
@@ -53,8 +53,8 @@ class LedgerServiceTest {
 
         var all = store.getAll();
         assertThat(all).hasSize(2);
-        assertThat(all.get(0).amount()).isEqualByComparingTo(new BigDecimal("10.00"));
-        assertThat(all.get(1).amount()).isEqualByComparingTo(new BigDecimal("20.00"));
+        assertThat(all.get(0).getAmount()).isEqualByComparingTo(new BigDecimal("10.00"));
+        assertThat(all.get(1).getAmount()).isEqualByComparingTo(new BigDecimal("20.00"));
     }
 
     @Test
@@ -63,10 +63,10 @@ class LedgerServiceTest {
 
         var result = service.record(new TransactionRequest(TransactionType.WITHDRAWAL, new BigDecimal("40.00")));
 
-        assertThat(result.id()).isNotNull();
-        assertThat(result.type()).isEqualTo(TransactionType.WITHDRAWAL);
-        assertThat(result.amount()).isEqualByComparingTo(new BigDecimal("40.00"));
-        assertThat(result.timestamp()).isNotNull();
+        assertThat(result.getId()).isNotNull();
+        assertThat(result.getType()).isEqualTo(TransactionType.WITHDRAWAL);
+        assertThat(result.getAmount()).isEqualByComparingTo(new BigDecimal("40.00"));
+        assertThat(result.getTimestamp()).isNotNull();
     }
 
     @Test
@@ -119,10 +119,10 @@ class LedgerServiceTest {
         var transactions = service.getTransactions();
 
         assertThat(transactions).hasSize(2);
-        assertThat(transactions.get(0).type()).isEqualTo(TransactionType.DEPOSIT);
-        assertThat(transactions.get(0).amount()).isEqualByComparingTo(new BigDecimal("100.00"));
-        assertThat(transactions.get(1).type()).isEqualTo(TransactionType.WITHDRAWAL);
-        assertThat(transactions.get(1).amount()).isEqualByComparingTo(new BigDecimal("40.00"));
+        assertThat(transactions.get(0).getType()).isEqualTo(TransactionType.DEPOSIT);
+        assertThat(transactions.get(0).getAmount()).isEqualByComparingTo(new BigDecimal("100.00"));
+        assertThat(transactions.get(1).getType()).isEqualTo(TransactionType.WITHDRAWAL);
+        assertThat(transactions.get(1).getAmount()).isEqualByComparingTo(new BigDecimal("40.00"));
     }
 
     @Test
@@ -131,10 +131,10 @@ class LedgerServiceTest {
 
         var transaction = service.getTransactions().get(0);
 
-        assertThat(transaction.id()).isNotNull();
-        assertThat(transaction.type()).isEqualTo(TransactionType.DEPOSIT);
-        assertThat(transaction.amount()).isEqualByComparingTo(new BigDecimal("50.00"));
-        assertThat(transaction.timestamp()).isNotNull();
+        assertThat(transaction.getId()).isNotNull();
+        assertThat(transaction.getType()).isEqualTo(TransactionType.DEPOSIT);
+        assertThat(transaction.getAmount()).isEqualByComparingTo(new BigDecimal("50.00"));
+        assertThat(transaction.getTimestamp()).isNotNull();
     }
 
     @Test

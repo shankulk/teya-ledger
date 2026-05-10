@@ -1,23 +1,18 @@
 package com.shankulk.teya.ledger.controller;
 
+import com.shankulk.teya.ledger.api.TransactionApi;
 import com.shankulk.teya.ledger.model.BalanceResponse;
 import com.shankulk.teya.ledger.model.Transaction;
 import com.shankulk.teya.ledger.model.TransactionRequest;
 import com.shankulk.teya.ledger.service.LedgerService;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1")
-public class TransactionController {
+public class TransactionController implements TransactionApi {
 
     private final LedgerService ledgerService;
 
@@ -25,19 +20,18 @@ public class TransactionController {
         this.ledgerService = ledgerService;
     }
 
-    @PostMapping("/transactions")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Transaction recordTransaction(@Valid @RequestBody TransactionRequest request) {
-        return ledgerService.record(request);
+    @Override
+    public ResponseEntity<Transaction> recordTransaction(TransactionRequest transactionRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ledgerService.record(transactionRequest));
     }
 
-    @GetMapping("/transactions")
-    public List<Transaction> getTransactions() {
-        return ledgerService.getTransactions();
+    @Override
+    public ResponseEntity<List<Transaction>> getTransactions() {
+        return ResponseEntity.ok(ledgerService.getTransactions());
     }
 
-    @GetMapping("/balance")
-    public BalanceResponse getBalance() {
-        return new BalanceResponse(ledgerService.getBalance());
+    @Override
+    public ResponseEntity<BalanceResponse> getBalance() {
+        return ResponseEntity.ok(new BalanceResponse().balance(ledgerService.getBalance()));
     }
 }

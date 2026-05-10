@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.0.6'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.openapi.generator' version '7.10.0'
 }
 
 group = 'com.shankulk.teya'
@@ -17,9 +18,45 @@ repositories {
 	mavenCentral()
 }
 
+openApiGenerate {
+	generatorName = "spring"
+	inputSpec = "$projectDir/openapi.yaml"
+	outputDir = layout.buildDirectory.dir("generated").get().asFile.absolutePath
+	apiPackage = "com.shankulk.teya.ledger.api"
+	modelPackage = "com.shankulk.teya.ledger.model"
+	typeMappings = [
+		"DateTime": "Instant",
+		"number"  : "BigDecimal"
+	]
+	importMappings = [
+		"Instant"   : "java.time.Instant",
+		"BigDecimal": "java.math.BigDecimal"
+	]
+	additionalProperties = [
+		interfaceOnly          : "true",
+		useSpringBoot3         : "true",
+		useBeanValidation      : "true",
+		useTags                : "true",
+		openApiNullable        : "false",
+		hideGenerationTimestamp: "true",
+		skipDefaultInterface   : "true"
+	]
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir layout.buildDirectory.dir("generated/src/main/java")
+		}
+	}
+}
+
+compileJava.dependsOn tasks.openApiGenerate
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'io.swagger.core.v3:swagger-annotations:2.2.22'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
